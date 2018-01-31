@@ -5,6 +5,7 @@ from urllib.error import HTTPError
 from urllib.error import URLError
 from bs4 import BeautifulSoup
 import re
+import csv
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
@@ -22,3 +23,4 @@ html = urlopen(request).read()
 #print(dataid_list,'bs4')
 #html_source = urlopen(page).read()
 dataid_list2 = re.findall('[a-z0-9]{32}',str(html))
+# print(dataid_list2)
