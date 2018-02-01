@@ -3,6 +3,9 @@ import os
 import time
 from sys import getsizeof
 
+list0 =['0a0a23ea4b214df5bef3f74df3525162', '5572771cf2f94fb99e4171570a76248c', '4d7f8c29a9184ec88ea3b3740696d0e1', '1782c9b53d8c4f42966b65a2e3e343bc', 'baabdacf716f4311ae6e10f97c6a0f88', 'f131e12838654132948dfce885ceba4d', '63c18722be8e47fcb7ade66bcac44854', 'e9f5192b17d245d78c3fcaf9dab8d97d', '22446ba7c1c84d949b694f35df49ab5b', 'c69c858db48b4bbb87df3bd0008c639c']
+
+
 list = ['4d7f8c29a9184ec88ea3b3740696d0e1',
         '1782c9b53d8c4f42966b65a2e3e343bc',
         'baabdacf716f4311ae6e10f97c6a0f88',
@@ -13,7 +16,7 @@ list = ['4d7f8c29a9184ec88ea3b3740696d0e1',
         'ea372436c2034a22a3ec39089863147f',
         'c56b9835a30341fbb31729423d5d8b06',
         '3080e85941c3480bbb11aa5c20dd6e5c']
-
+print(type(list[1]))
 # csv_file = open('D:\paiwuxuke\dataidlist.csv', 'a',newline='')
 # writer = csv_file
 # writer.write("index","a_name","b_name")
@@ -50,11 +53,13 @@ time.sleep(2)
 
 # with open(file_path,'w',newline='') as f:
 #     f.writelines(['dataid,isdown'])
-
+list00 = [line for line in list0]
+print(list00)
 with open(file_path,'a',newline='') as f1:
-    f1_csv = csv.writer(f1)
+   # f1_csv = csv.writer(f1)
         #f1.write([list[i],str(0)]+','+'\n')
-    f1_csv.writerows(list1)
+    for i in range(10):
+        f1.writelines(list00[i-1] + '\n')
 
 print('写入后，打开文件')
 # 测试打开
