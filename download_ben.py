@@ -12,7 +12,12 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
 }
 config = pdfkit.configuration(wkhtmltopdf="C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe")
-
+options = {
+    # 设置PDF的质量，因为都为图片，所以其他格式不做设置
+    # 参考来自https://www.jianshu.com/p/4d65857ffe5e
+    #'image-quality':'40',
+    'lowquality':'',
+}
 # 如果在前一页获得了dataid，那么这一步就不需要获取链接，
 # 希望获取公司名作为验证手段和文件存储的信息，所以还是要解析详情页
 
@@ -37,15 +42,15 @@ def download_ben(dataid,headers,download_path):
     zb_url_head = 'http://permit.mep.gov.cn/permitExt/upanddown.do?method=download&ewmfile=fbfile&datafileid='
     zb_url = zb_url_head + dataid
     fb_url = fb_url_head + dataid
-    zb_local = download_path + com_name + '-排污许可证正本.pdf'
-    fb_local = download_path + com_name + '-排污许可证副本.pdf'
+    zb_local = download_path + com_name + '-排污许可证正本3.pdf'
+    fb_local = download_path + com_name + '-排污许可证副本3.pdf'
     #fb_local = download_path + com_name + '-排污许可证副本.html'
 
     try:
         urlretrieve(zb_url, zb_local)
         # 只会下载HTML，不能下载其中的图片,所以暂时不用这个方法
         #urlretrieve(fb_url, fb_local)
-        pdfkit.from_url(fb_url, fb_local, configuration=config)
+        pdfkit.from_url(fb_url, fb_local, configuration=config,options=options)
     except:
         print('出错了')
 
