@@ -23,43 +23,6 @@ com_url_head = 'http://permit.mep.gov.cn/permitExt/xkgkAction!xkgk.action?xkgk=g
 fb_url_head = 'http://permit.mep.gov.cn/permitExt/syssb/wysb/hpsp/hpsp-company-sewage!showImage.action?dataid='
 zb_url_head = 'http://permit.mep.gov.cn'
 
-# 本意是想在请求一个公司许可证的详情页时，同时获得公司名称和正副本ID，只请求一次网址，不要重复请求，但是发现
-# 水平有限，写出的类不管用。所以先搁置，修改自己的函数吧
-class company(object):
-
-    com_url_head = 'http://permit.mep.gov.cn/permitExt/xkgkAction!xkgk.action?xkgk=getxxgkContent&dataid='
-    fb_url_head = 'http://permit.mep.gov.cn/permitExt/syssb/wysb/hpsp/hpsp-company-sewage!showImage.action?dataid='
-    zb_url_head = 'http://permit.mep.gov.cn'
-
-    def __init__(self,dataid):
-        self.dataid = dataid
-
-    def get_com_html(self,dataid):
-        com_url = com_url_head + dataid
-        response = requests.get(com_url)
-        soup = BeautifulSoup(response.text, 'lxml')
-        return soup
-
-    def get_com_name(self,dataid):
-        soup = self.get_com_html(dataid)
-        com_name = soup.find('p').text
-        return com_name
-
-def get_com_name(dataid):
-    # 如果从数据库获得公司名称的话，此函数的含义会发生变化。
-    com_url = com_url_head + dataid
-    response = requests.get(com_url)
-    soup = BeautifulSoup(response.text,'lxml')
-    com_name = soup.find('p').text
-    return com_name
-
-def get_zb_fileurl(dataid):
-    com_url = com_url_head + dataid
-    response = requests.get(com_url)
-    soup = BeautifulSoup(response.text,'lxml')
-    zb_fileid = soup.find('a',text='排污许可证正本')
-    return zb_fileid['href']
-
 def getNameAndFileid(dataid):
     com_url = com_url_head + dataid
     response = requests.get(com_url)
@@ -68,20 +31,23 @@ def getNameAndFileid(dataid):
     zb_fileid = soup.find('a', text='排污许可证正本')
     return com_name,zb_fileid['href']
 
-def get_zben(dataid):
-    zb_url_tail = get_zb_fileurl(dataid)
+# 一次请求获取两个值，这两个值是不同函数调用的，如何解决
+
+
+def get_zben(zb_url_tail):
     zb_url = zb_url_head + zb_url_tail
     try:
        response =  requests.get(zb_url)
        if response.text == '未找到对应文件！':
-           print('出错了')
+           print('出错了---未找到对应文件')
+           #return response.text
        else:
            return response.content
     except:
         print('正本链接无响应')
 
-def write_zb(dataid,com_name,down_path='D:\何方辉\排污许可\download'):
-    re_content = get_zben(dataid)
+def write_zb(zb_url_tail,com_name,down_path='D:\何方辉\排污许可\download'):
+    re_content = get_zben(zb_url_tail)
     assert len(re_content) > 200
     file_path = down_path +  '\\' +com_name + '-排污许可证正本.pdf'
     with open(file_path,'wb') as f:
@@ -92,13 +58,8 @@ def write_fb(dataid,com_name,down_path='D:\何方辉\排污许可\download'):
     fb_local = down_path + '\\' + com_name + '-排污许可证副本.pdf'
     pdfkit.from_url(fb_url,fb_local, configuration=config,options=options)
 
-
 if __name__ == '__main__':
-
     dataid = '453727f1cd534cfc93f9d3cefb6f7b61'
-    dataid1 = '6d81f721277c48f6aa62b92f0233e48d'
-    company_name = get_com_name(dataid1)
-    # print(company_name)
-    write_zb(dataid1, company_name)
-    # write_fb(dataid,company_name)
-
+    company_name, zb_url_tail = getNameAndFileid(dataid)
+    write_zb(zb_url_tail, company_name)
+    write_fb(dataid,company_name)
