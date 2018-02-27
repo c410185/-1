@@ -32,7 +32,7 @@ def getNameAndFileid(dataid):
     return com_name,zb_fileid['href']
 
 # 一次请求获取两个值，这两个值是不同函数调用的，如何解决
-
+# 详情页的公司名称可能为空，需要在此就抛出异常吗
 
 def get_zben(zb_url_tail):
     zb_url = zb_url_head + zb_url_tail

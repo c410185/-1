@@ -1,11 +1,12 @@
-from urllib.request import urlopen
-from urllib.request import Request
-from urllib.request import urlretrieve
-import pdfkit
-from urllib.error import HTTPError
 from urllib.error import URLError
+from urllib.request import Request
+from urllib.request import urlopen
+from urllib.request import urlretrieve
+
+import pdfkit
 from bs4 import BeautifulSoup
-from pySQLtext import get_dataid
+
+from 排污许可证相关.pySQLtext import get_dataid
 
 # 设置请求头,后期考虑多请求头自动切换
 headers = {
