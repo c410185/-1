@@ -90,8 +90,9 @@ def get_file(file_url, file_name,houzhui):
            with open(file_path, 'wb') as f:
                f.write(response.content)
                print('附件:{}下载成功'.format(file_name))
-    except:
-        print('附件下载失败{}'.format(file_name))
+    except Exception as e:
+        print('附件下载失败{}'.format(file_name),end='\n')
+        print(str(e))
 
 def return_fujian(old_name):
     my_pattern = '\.[^.\\/:*?"<>|\r\n]+$'
