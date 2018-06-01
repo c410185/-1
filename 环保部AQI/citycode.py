@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 url = 'http://datacenter.mep.gov.cn/websjzx/report/list.vm'
 form_data = {
-    'pageNum': 2,
+    'pageNum': 1,
     'orderby' : '',
     'ordertype' : '',
     'xmlname' : 1512478367400,
@@ -23,7 +23,7 @@ form_data = {
     'roleType' : 'CFCD2084',
     'permission' : 0,
     'AREA' : '',
-    'V_DATE' : '2018-02-27',
+    'V_DATE' : '2018-02-28',
     'inPageNo' : 1,
 }
 
@@ -47,7 +47,7 @@ def get_page_data():
     return list
 
 # save to csv
-file_path = 'D:\IPE_download\datacenter\citycode.csv'
+file_path = 'D:\IPE_download\datacenter\citycode_180301_2.csv'
 def save_to_csv(rows):
     with open(file_path,'a',newline='') as f:
         writer = csv.writer(f)
@@ -55,7 +55,7 @@ def save_to_csv(rows):
 
 def download_all():
     i = 1
-    while i < 38:
+    while i < 39:
         print('正在下载第{}页数据'.format(i))
         all_list = get_page_data()
         update_form_data()
@@ -72,5 +72,4 @@ def download_one_page(num):
     print('休息2秒')
 
 if __name__ == '__main__':
-    download_one_page(36)
-    download_one_page(37)
+    download_all()

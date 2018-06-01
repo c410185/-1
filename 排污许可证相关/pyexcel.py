@@ -1,8 +1,8 @@
 import os
 import openpyxl as ox
-from 排污许可证相关 import download_ben_1 as dben
+import download_ben_1 as dben
 
-file_path = r'D:\何方辉\排污许可\排污许可20180227-0.xlsx'
+file_path = r'D:\何方辉\排污许可\排污许可20180516.xlsx'
 fail_file = r'D:\何方辉\排污许可\排污许可企业-出错记录.xlsx'
 download_path_head = r'D:\何方辉\排污许可\download'
 
