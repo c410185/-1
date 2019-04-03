@@ -120,22 +120,25 @@ def _jianceshuju(html):
     soup = BeautifulSoup(html, 'lxml')
     table = soup.find('table',class_='tb_ls')
     trs = table.find_all('tr')
-    for tr in trs[1:]:
-        tds = tr.find_all('td')
-        序号 = tds[0].text
-        监测点位 = tds[1]['title']
-        监测时间 = tds[2].text
-        监测项目 = tds[3]['title']
-        监测结果 = re.sub(r'[\n\t\s]','',tds[4].text)
-        标准限值 = re.sub(r'[\n\t\s]','',tds[5].text)
-        单位 = tds[6].text
-        是否达标 = re.sub(r'[\n\t]','',tds[7].text)
-        超标倍数 = re.sub(r'[\n\t]','',tds[8].text)
-        评价标准 = tds[9]['title']
-        排放去向 = tds[10]['title']
-        排放方式 = tds[11]['title']
-        备注 = tds[12]['title']
-    return (序号,监测点位,监测时间,监测项目,监测结果,标准限值,单位,是否达标,超标倍数,评价标准,排放去向,排放方式,备注)
+    if len(trs) == 2:
+        print('无数据')
+    else:
+        for tr in trs[1:]:
+            tds = tr.find_all('td')
+            序号 = tds[0].text
+            监测点位 = tds[1]['title']
+            监测时间 = tds[2].text
+            监测项目 = tds[3]['title']
+            监测结果 = re.sub(r'[\n\t\s]','',tds[4].text)
+            标准限值 = re.sub(r'[\n\t\s]','',tds[5].text)
+            单位 = tds[6].text
+            是否达标 = re.sub(r'[\n\t]','',tds[7].text)
+            超标倍数 = re.sub(r'[\n\t]','',tds[8].text)
+            评价标准 = tds[9]['title']
+            排放去向 = tds[10]['title']
+            排放方式 = tds[11]['title']
+            备注 = tds[12]['title']
+        return (序号,监测点位,监测时间,监测项目,监测结果,标准限值,单位,是否达标,超标倍数,评价标准,排放去向,排放方式,备注)
 # 手工监测数据 分日，周,月，季度，年,关注按月，季度和年的数据，主要是月和季度
 
 def _tingchantable(html):
@@ -216,12 +219,48 @@ def weijiance(url):
 
 class savedate():
     def __init__(self):
+        # 如果数据库不存在，会被创建
         self.db = sqlite3.connect('beijing_history_data.db')
+
+    def _createCompany(self):
+        c = self.db.cursor()
+        c.execute("""CREATE TABLE Industries(
+    ID INT PRIMARY KEY  NOT NULL,
+    NAME CHAR(200) NOT NULL ,
+    EN_NAME CHAR(200),
+    LAT CHAR(50),--纬度
+    LNG CHAR(50),--经度
+    AREANAME CHAR(100) NOT NULL, --区县名
+    LEGAL_PERSON CHAR(100),--法人
+    LINKMAN CHAR(100),--联系人
+    PHONE CHAR(50),--联系电话
+    TOUYUNSHIJIAN CHAR(50),--投运时间
+    TRADE CHAR(100),--所属行业
+    PRODUCTS CHAR(200),--主要产品
+    TECHNOLOGY CHAR(200),--主要生产工艺
+    PRO_CLCLE CHAR(50),--生产周期
+    POLLUTANT_TYPE CHAR(100),--污染源类型
+    PULLUTANT_NAME CHAR(200),--污染物名称
+    AUTOMATIC_MODE CHAR(200),--自动监测运维方式
+    THIRD_PARTY CHAR(100),--第三方运维公司
+    MONITOR_WAY CHAR(100),--自行监测方式
+    MANUAL_MONITOR_WAY CHAR(100),--手工监测方式
+    FACILITIES CHAR(200),--治污设施
+    COM_SITE CHAR(200) --企业对外信息公开网址
+)
+
+""")
+        self.db.commit()
+        self.db.close()
+
+    def close(self):
+        self.db.commit()
+        self.db.close()
 
 
 
 if __name__ == '__main__':
-    html = '停产.html'
+    # html = '停产.html'
     # jichuxinxi(html)
     # print(html.replace('\n|\t',''))
     # m = re.sub('\n|\t','',html)
@@ -229,6 +268,10 @@ if __name__ == '__main__':
     # fangan = '监测方案.html'
     # jiancefangan(fangan)
     # zidongjiance()
-    url = 'http://58.30.229.134/monitor-pub/org_zdjc/f982e493-f5f1-44fc-8f00-ed19b2809cef.do'
-    time = '2018-01-01'
-    zidongjiance(url,time)
+    # url = 'http://58.30.229.134/monitor-pub/org_zdjc/f982e493-f5f1-44fc-8f00-ed19b2809cef.do'
+    # time = '2018-01-01'
+    # zidongjiance(url,time)
+    # "mstate": "null" 的413家企业
+    bj = savedate()
+    bj._createCompany()
+
