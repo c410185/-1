@@ -2,10 +2,12 @@
 # Created by IPE_he on 3/28
 
 import re
+from time import sleep
 from bs4 import BeautifulSoup
 from mytools import buildfilepath
 import requests
 import sqlite3
+import json
 
 def open_file(filename):
     with open(filename,'r',encoding='utf-8') as f:
@@ -22,43 +24,50 @@ hbxzxk = 'http://58.30.229.134/monitor-pub/org_hbxzxk/'
 hjyjya = 'http://58.30.229.134/monitor-pub/org_hjyjya/'
 
 def jichuxinxi(html):
-    r = open_file(html)
-    soup = BeautifulSoup(r,'lxml')
+    # r = open_file(html)
+    soup = BeautifulSoup(html,'lxml')
     jichu = soup.find('table',class_='tb_dotline')
-    tds = jichu.find_all('td')
-    # 信息存在可能为空的情况
-    Name = tds[1].text.strip()
-    # EnName
-    # ShortName
-    Address = tds[7].text.strip()
-    # AddTime
-    Lat = tds[9].text.strip()
-    Lng = tds[11].text.strip()
-    #SpaceId  地区外键，北京
-    #AreaId 区县id，没有
-    Code = tds[5].text.strip()
-    #UnifiedSocietyCreditCode 统一社会信用代码
-    #PlatFormId 平台ID
-    法人 = tds[13].text.strip()
-    联系人 = tds[17].text.strip()
-    联系电话 = tds[19].text.strip()
-    投运时间 = tds[21].text.strip()
-    所属行业 = tds[15].text.strip()
-    主要产品 = tds[31].text.strip()
-    主要生产工艺 = tds[33].text.strip()
-    生产周期 = tds[37].text.strip()
-    污染源类型 = tds[3].text.strip()
-    # 管理级别
-    排放污染物名称 = tds[29].text.strip()
-    自动监测运维方式 = re.sub(r'\n|\t','',tds[25].text)
-    # 第三方运行公司
-    自行监测方式 = re.sub(r'\n|\t','',tds[23].text)
-    手工监测方式 = re.sub(r'\n|\t','',tds[27].text)
-    治理设施 = tds[35].text.strip()
-    # 排放去向
-    # 排放方式
-    企业官网对外信息公开网址 = tds[39].text.strip()
-    # PersonId 录入人
+    try:
+        tds = jichu.find_all('td')
+        # 信息存在可能为空的情况
+        Name = tds[1].text.strip()
+        # EnName
+        # ShortName
+        Address = tds[7].text.strip()
+        # AddTime
+        Lat = tds[9].text.strip()
+        Lng = tds[11].text.strip()
+        # SpaceId  地区外键，北京
+        # AreaId 区县id，没有
+        Code = tds[5].text.strip()
+        # UnifiedSocietyCreditCode 统一社会信用代码
+        # PlatFormId 平台ID
+        法人 = tds[13].text.strip()
+        联系人 = tds[17].text.strip()
+        联系电话 = tds[19].text.strip()
+        投运时间 = tds[21].text.strip()
+        所属行业 = tds[15].text.strip()
+        主要产品 = tds[31].text.strip()
+        主要生产工艺 = tds[33].text.strip()
+        生产周期 = tds[37].text.strip()
+        污染源类型 = tds[3].text.strip()
+        # 管理级别
+        排放污染物名称 = tds[29].text.strip()
+        自动监测运维方式 = re.sub(r'\n|\t', '', tds[25].text)
+        # 第三方运行公司
+        自行监测方式 = re.sub(r'\n|\t', '', tds[23].text)
+        手工监测方式 = re.sub(r'\n|\t', '', tds[27].text)
+        治理设施 = tds[35].text.strip()
+        # 排放去向
+        # 排放方式
+        企业官网对外信息公开网址 = tds[39].text.strip()
+        # PersonId 录入人
+        return [Name, Address, Lat, Lng, Code, 法人, 联系人, 联系电话, 投运时间, 所属行业, 主要产品, 主要生产工艺, 生产周期, 污染源类型, 排放污染物名称, 自动监测运维方式,
+                自行监测方式, 手工监测方式, 治理设施, 企业官网对外信息公开网址]
+    except Exception as e:
+        with open('jichu_wrong.txt', 'a+', encoding='utf-8') as f:
+            f.write('worng!')
+
 
 
 def jiancefangan(html):
@@ -226,10 +235,13 @@ class savedate():
         c = self.db.cursor()
         c.execute("""CREATE TABLE Industries(
     ID INT PRIMARY KEY  NOT NULL,
-    NAME CHAR(200) NOT NULL ,
+    F_NAME CHAR(200) NOT NULL ,
     EN_NAME CHAR(200),
     LAT CHAR(50),--纬度
     LNG CHAR(50),--经度
+    ADDRESS CHAR(100), --地址
+    F_CODE CHAR(50), --机构代码
+    F_SOCIETYCREDITCODE CHAR(50),--统一社会信用代码
     AREANAME CHAR(100) NOT NULL, --区县名
     LEGAL_PERSON CHAR(100),--法人
     LINKMAN CHAR(100),--联系人
@@ -257,10 +269,46 @@ class savedate():
         self.db.commit()
         self.db.close()
 
+    def save_company(self,m):
+        c = self.db.cursor()
+        query = "INSERT INTO Industries (F_NAME,F_ADDRESS,LAT,LNG,F_CODE,LEGAL_PERSON,LINKMAN,PHONE,TOUYUNSHIJIAN,TRADE,PRODUCTS,TECHNOLOGY,PRO_CLCLE,POLLUTANT_TYPE,PULLUTANT_NAME,AUTOMATIC_MODE,MONITOR_WAY,MANUAL_MONITOR_WAY,FACILITIES,COM_SITE,AREANAME) VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') " % (m)
+        # print(query)
+        c.execute(query)
+
+def company_url():
+    with open('D:\何方辉\网站爬取\历史监测数据抓取\北京\Beijing_Industries.json', 'r', encoding='utf-8') as f:
+        m = json.load(f)
+        company_list = []
+    # 只获取 "mstate": "null"系列数据
+        for i in m:
+            if i['mstate'] == 'null':
+                company_list.append([i['title'],i['url'],i['areaname']])
+
+        return company_list
+
+def run():
+    companies = company_url()
+    bj = savedate()
+    for i in companies:
+        title,url,areaname = i
+        jichu_url = 'http://58.30.229.134/monitor-pub/org_jbxx/' + url[9:]
+        try:
+            r = requests.get(jichu_url)
+        # (Name,Address,Lat,Lng,Code,法人,联系人,联系电话,投运时间,所属行业,主要产品,主要生产工艺,生产周期,污染源类型,排放污染物名称,自动监测运维方式,自行监测方式,手工监测方式,治理设施,企业官网对外信息公开网址)
+            k = jichuxinxi(r.text)
+            k.append(areaname)
+            bj.save_company(tuple(k))
+            print(f'{title} 基础信息下载完成')
+            sleep(1)
+        except Exception as e:
+            with open('wrong.txt','a+',encoding='utf-8') as f:
+                f.writelines([areaname,'\n'])
+    bj.close()
+
 
 
 if __name__ == '__main__':
-    # html = '停产.html'
+    # html = '页面.html'
     # jichuxinxi(html)
     # print(html.replace('\n|\t',''))
     # m = re.sub('\n|\t','',html)
@@ -272,6 +320,7 @@ if __name__ == '__main__':
     # time = '2018-01-01'
     # zidongjiance(url,time)
     # "mstate": "null" 的413家企业
-    bj = savedate()
-    bj._createCompany()
-
+    # bj = savedate()
+    # bj._createCompany()
+    # company = ''
+    run()
